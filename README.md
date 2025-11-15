@@ -4,6 +4,10 @@
 
 A Neovim plugin that captures and displays console outputs as virtual text inline with your code. Features automatic framework detection, intelligent project setup, and comprehensive debugging capabilities for modern JavaScript development.
 
+## Demo
+
+![console nvim](https://github.com/user-attachments/assets/344b610c-67f4-40a0-b243-93632e71c419)
+
 ## Key Features
 
 - Real-time Console Capture - See console outputs instantly as virtual text next to your code
