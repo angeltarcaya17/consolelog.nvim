@@ -1,0 +1,75 @@
+# Documentation files (keep README.md, CLAUDE.md, AGENTS.md)
+# [Removed old pattern that was ignoring these]
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Build outputs
+dist/
+build/
+out/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output
+apps/
+temp/
+# Test files in root directory
+/test*.js
+/test*.lua
+/test*.html
+/test*.py
+/debug*.lua
+/fix*.lua
+/trace*.lua
+/clean*.lua
+/patch*.lua
+/remove*.lua
+/simple*.lua
+/use*.lua
+/manual*.lua
+/reinstall*.lua
+/disable*.lua
+/*.sh
+!run_tests.sh
+
+# Test projects
+/test-*/
+/example-*/
+
+# Temporary files
+*.bak
+*.tmp
+*.old
+*.orig
+/tmp/
+
+# Log files
+*.log
+consolelog-debug.log
+
+# Local configuration
+local-config.lua
+plugin-config.lua

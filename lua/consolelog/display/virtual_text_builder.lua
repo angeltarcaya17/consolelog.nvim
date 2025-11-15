@@ -1,0 +1,137 @@
+local M = {}
+
+local formatter = require("consolelog.processing.formatter")
+
+function M.get_highlight_groups(console_type)
+  local highlight_map = {
+    log = {
+      main = "ConsoleLogOutput",
+      left = "ConsoleLogOutputLeft",
+      right = "ConsoleLogOutputRight",
+    },
+    error = {
+      main = "ConsoleLogError",
+      left = "ConsoleLogErrorLeft",
+      right = "ConsoleLogErrorRight",
+    },
+    warn = {
+      main = "ConsoleLogWarning",
+      left = "ConsoleLogWarningLeft",
+      right = "ConsoleLogWarningRight",
+    },
+    info = {
+      main = "ConsoleLogInfo",
+      left = "ConsoleLogInfoLeft",
+      right = "ConsoleLogInfoRight",
+    },
+    debug = {
+      main = "ConsoleLogDebug",
+      left = "ConsoleLogDebugLeft",
+      right = "ConsoleLogDebugRight",
+    },
+  }
+
+  return highlight_map[console_type] or highlight_map.log
+end
+
+function M.format_value_for_display(value, raw_value, config)
+  local display_value = raw_value or value
+  return formatter.format_for_inline(display_value, config)
+end
+
+function M.add_execution_count(text, count, config)
+  if not config.history or not config.history.enabled then
+    return text
+  end
+
+  if not config.history.show_indicator then
+    return text
+  end
+
+  if count and count > 1 then
+    return text .. string.format(" [×%d]", count)
+  end
+
+  return text
+end
+
+function M.split_into_lines(text, max_width)
+  if not max_width or max_width <= 0 then
+    return { text }
+  end
+
+  local lines = {}
+  local current_line = ""
+  
+  for word in text:gmatch("%S+") do
+    local test_line = current_line == "" and word or (current_line .. " " .. word)
+    
+    if vim.fn.strdisplaywidth(test_line) <= max_width then
+      current_line = test_line
+    else
+      if current_line ~= "" then
+        table.insert(lines, current_line)
+      end
+      current_line = word
+    end
+  end
+  
+  if current_line ~= "" then
+    table.insert(lines, current_line)
+  end
+
+  return #lines > 0 and lines or { text }
+end
+
+function M.build_virtual_text(output, config)
+  local console_type = output.console_type or "log"
+  local highlights = M.get_highlight_groups(console_type)
+  
+  local formatted = M.format_value_for_display(output.value, output.raw_value, config)
+  formatted = M.add_execution_count(formatted, output.execution_count, config)
+
+  local max_width = config.display.max_width or 0
+  
+  if max_width > 0 and vim.fn.strdisplaywidth(formatted) > max_width then
+    local lines = M.split_into_lines(formatted, max_width)
+    local virt_lines = {}
+    
+    for i, line in ipairs(lines) do
+      if i == 1 then
+        table.insert(virt_lines, {
+          { "", highlights.left },
+          { " " .. line .. " ", highlights.main },
+          { "", highlights.right }
+        })
+      else
+        table.insert(virt_lines, {
+          { "", highlights.left },
+          { " " .. line .. " ", highlights.main },
+          { "", highlights.right }
+        })
+      end
+    end
+    
+    return virt_lines, true
+  else
+    return { {
+      { "", highlights.left },
+      { " " .. formatted .. " ", highlights.main },
+      { "", highlights.right }
+    } }, false
+  end
+end
+
+function M.get_highlight_for_type(console_type, config)
+  local highlights = {
+    log = "ConsoleLogOutput",
+    error = "ConsoleLogError",
+    warn = "ConsoleLogWarning",
+    info = "ConsoleLogInfo",
+    debug = "ConsoleLogDebug",
+  }
+
+  return highlights[console_type] or config.display.highlight
+end
+
+return M
